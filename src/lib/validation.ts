@@ -15,7 +15,7 @@ export const validatePassword = (password: string) => {
   }
 };
 
-export const validateRequired = (value: any, fieldName: string) => {
+export const validateRequired = (value: unknown, fieldName: string) => {
   if (!value) return `${fieldName} is required`;
 };
 

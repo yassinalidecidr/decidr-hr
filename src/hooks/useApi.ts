@@ -6,7 +6,7 @@ interface UseApiOptions {
   showErrorToast?: boolean;
 }
 
-export function useApi<T extends (...args: any[]) => Promise<any>>(
+export function useApi<T extends (...args: unknown[]) => Promise<unknown>>(
   apiFunction: T,
   { onError, showErrorToast = true }: UseApiOptions = {}
 ) {

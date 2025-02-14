@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 
 interface ValidationRules {
-  [key: string]: (value: any) => string | undefined;
+  [key: string]: (value: unknown) => string | undefined;
 }
 
 interface UseFormOptions<T> {
@@ -10,7 +10,7 @@ interface UseFormOptions<T> {
   onSubmit: (values: T) => Promise<void> | void;
 }
 
-export function useForm<T extends Record<string, any>>({
+export function useForm<T extends Record<string, unknown>>({
   initialValues,
   validationRules = {},
   onSubmit,
@@ -19,7 +19,7 @@ export function useForm<T extends Record<string, any>>({
   const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const validateField = useCallback((name: keyof T, value: any) => {
+  const validateField = useCallback((name: keyof T, value: unknown) => {
     const validateRule = validationRules[name as string];
     if (validateRule) {
       const error = validateRule(value);
@@ -32,7 +32,7 @@ export function useForm<T extends Record<string, any>>({
     return true;
   }, [validationRules]);
 
-  const handleChange = useCallback((name: keyof T, value: any) => {
+  const handleChange = useCallback((name: keyof T, value: unknown) => {
     setValues(prev => ({ ...prev, [name]: value }));
     validateField(name, value);
   }, [validateField]);
