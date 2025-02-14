@@ -1,8 +1,6 @@
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const typography = require("@tailwindcss/typography");
+import type { Config } from "tailwindcss";
 
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -26,5 +24,5 @@ module.exports = {
       },
     },
   },
-  plugins: [typography],
-};
+  plugins: [],
+} satisfies Config;;

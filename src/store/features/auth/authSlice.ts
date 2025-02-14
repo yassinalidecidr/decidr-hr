@@ -8,12 +8,24 @@ interface AuthState {
   error: string | null;
 }
 
-const initialState: AuthState = {
-  user: JSON.parse(localStorage.getItem('user') || 'null'),
-  token: localStorage.getItem('token'),
-  loading: false,
-  error: null,
+const getInitialState = () => {
+  if (typeof window === 'undefined') {
+    return {
+      user: null,
+      token: null,
+      loading: false,
+      error: null,
+    };
+  }
+  return {
+    user: JSON.parse(localStorage.getItem('user') || 'null'),
+    token: localStorage.getItem('token'),
+    loading: false,
+    error: null,
+  };
 };
+
+const initialState: AuthState = getInitialState();
 
 export const login = createAsyncThunk(
   'auth/login',
