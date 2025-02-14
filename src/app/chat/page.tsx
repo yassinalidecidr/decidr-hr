@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '../../hooks/useAuth';
 import { ChatWindow } from '../../components/Chat/ChatWindow';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { sendMessage } from '@/store/features/chat/chatSlice';
+import { sendMessage } from '../../store/features/chat/chatSlice';
 
 export default function ChatPage() {
   const { token } = useAuth();

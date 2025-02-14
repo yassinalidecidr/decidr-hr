@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { LoginForm } from '@/components/LoginForm';
+import { useAuth } from '../../../hooks/useAuth';
+import { LoginForm } from '../../../components/LoginForm';
 import toast from 'react-hot-toast';
 
 export default function LoginPage() {
