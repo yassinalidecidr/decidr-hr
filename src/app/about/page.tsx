@@ -7,10 +7,10 @@ export default function AboutPage() {
         <div className="space-y-6">
           <section>
             <h2 className="text-2xl font-semibold mb-4">Our Mission</h2>
-            <p className="text-gray-200">
+            <p className="text-gray-200">{`
               We're dedicated to revolutionizing HR processes through AI-powered solutions. 
               Our platform combines cutting-edge technology with human expertise to deliver 
-              seamless HR experiences.
+              seamless HR experiences.`}
             </p>
           </section>
 

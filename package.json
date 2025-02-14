@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build:tailwind": "ts-node tailwind.config.ts",
+    "build:tailwind": "node tailwind.config.js",
     "build": "npm run build:tailwind && next build",
     "start": "next start",
     "lint": "next lint",
