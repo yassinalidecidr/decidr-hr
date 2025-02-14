@@ -1,15 +1,18 @@
 import { useCallback, useMemo } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
-export function useQueryParams<T extends Record<string, string>>() {
+export function useQueryParams<T extends Record<string, string>>(): readonly [
+  T,
+  (newParams: Partial<T>, options?: { replace?: boolean }) => void
+] {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const params = useMemo(() => {
-    const params: Partial<T> = {};
+    const params = {} as T;
     searchParams.forEach((value, key) => {
-      params[key as keyof T] = value;
+      params[key as keyof T] = value as T[keyof T];
     });
     return params;
   }, [searchParams]);
