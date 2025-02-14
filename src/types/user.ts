@@ -3,6 +3,7 @@ export interface User {
   email: string;
   name: string;
   role: string;
+  startDate: string;
   organisation: {
     settings: {
       allowedDomains: string[];

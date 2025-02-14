@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import Link from 'next/link';
 
 export default function DashboardPage() {
   const { user, token } = useAuth();
@@ -24,42 +23,50 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-8">Welcome, {user.name}!</h1>
-        
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="p-6 bg-white rounded-lg shadow-md dark:bg-gray-800">
-            <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-            <div className="space-y-4">
-              <Link
-                href="/chat"
-                className="block w-full p-4 text-center bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                Start New Chat
-              </Link>
-              {/* Add more quick actions as needed */}
-            </div>
-          </div>
-
-          <div className="p-6 bg-white rounded-lg shadow-md dark:bg-gray-800">
-            <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-            <div className="space-y-2">
-              {/* Add recent activity items here */}
-              <p className="text-gray-500">No recent activity</p>
+    <div className="min-h-screen pt-16 bg-gradient-to-br from-blue-950 via-blue-900 to-purple-900">
+      <div className="container mx-auto px-6 py-10">
+        {/* User and Organization Info Section */}
+        <div className="mb-12">
+          <h1 className="text-4xl font-bold text-center text-white mb-6">
+            Welcome, {user?.name || 'User'}
+          </h1>
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 max-w-3xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-4">User Information</h3>
+                <div className="space-y-2 text-gray-200">
+                  <p>Email: {user?.email}</p>
+                  <p>Role: {user?.role || 'Member'}</p>
+                  <p>Member since: {new Date(user?.startDate).toLocaleDateString()}</p>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-4">Organization Details</h3>
+                <div className="space-y-2 text-gray-200">
+                  <p>Organization: {user?.organisation?.name || 'Personal Account'}</p>
+                  <p>Subscription: {'Free Plan'}</p>
+                  {/* <p>Members: {user?.organization?.memberCount || 1}</p> */}
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-8 p-6 bg-white rounded-lg shadow-md dark:bg-gray-800">
-          <h2 className="text-xl font-semibold mb-4">Account Information</h2>
-          <div className="space-y-2">
-            <p>
-              <span className="font-medium">Email:</span> {user.email}
-            </p>
-            <p>
-              <span className="font-medium">Organisation:</span> {user.organisation.name}
-            </p>
+        {/* Dashboard Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 hover:bg-white/20 transition duration-300">
+            <h2 className="text-2xl font-semibold text-white mb-4">Recent Chats</h2>
+            {/* Add content here */}
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 hover:bg-white/20 transition duration-300">
+            <h2 className="text-2xl font-semibold text-white mb-4">Statistics</h2>
+            {/* Add content here */}
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 hover:bg-white/20 transition duration-300">
+            <h2 className="text-2xl font-semibold text-white mb-4">Settings</h2>
+            {/* Add content here */}
           </div>
         </div>
       </div>
