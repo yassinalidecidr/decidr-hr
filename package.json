@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
+    "build:tailwind": "ts-node tailwind.config.ts",
+    "build": "npm run build:tailwind && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dev": "next dev --turbopack"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.5.1",
@@ -31,6 +32,7 @@
     "postcss": "^8.5.2",
     "prettier": "^3.5.0",
     "tailwindcss": "^3.4.17",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }
