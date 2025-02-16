@@ -13,7 +13,7 @@ export default function Home() {
         <div className="w-full max-w-[800px] px-4 md:px-6">
           <div className="flex flex-col items-center space-y-8 text-center">
             <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl/none text-white max-w-3xl">
-              AI-powered HR{" "}
+              AI-Powered HR{" "}
               <span className="bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
                 solutions
               </span>
