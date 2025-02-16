@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "yarn run typescript:build && yarn run next:build",
+    "build": "yarn run typescript:build && yarn run next:build && next export",
     "clean": "rm -rf tsconfig.tsbuildinfo",
     "dev": "next dev --turbopack",
     "next:dev": "next dev --turbopack",
