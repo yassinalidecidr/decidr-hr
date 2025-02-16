@@ -1,21 +1,10 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ToastProvider } from "@/components/ToastProvider";
 import "./globals.css";
 import { Providers } from '@/store/provider';
 import { Chat } from '@/components/Chat/Chat';
 import NavbarWrapper from '@/components/NavbarWrapper';
-
-const geistSans = localFont({
-  src: '../fonts/geistMono-regular.otf',
-  variable: "--font-geist-sans",
-});
-
-const geistMono = localFont({
-  src: '../fonts/geistMonoVF.ttf',
-  variable: "--font-geist-mono",
-});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -29,7 +18,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      {/* Use Tailwind's `font-sans` to apply system fonts */}
+      <body className="font-sans antialiased">
         <Providers>
           <AuthProvider>
             <NavbarWrapper />
