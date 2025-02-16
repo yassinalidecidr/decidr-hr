@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ToastProvider } from "@/components/ToastProvider";
 import "./globals.css";
@@ -7,14 +7,14 @@ import { Providers } from '@/store/provider';
 import { Chat } from '@/components/Chat/Chat';
 import NavbarWrapper from '@/components/NavbarWrapper';
 
-const geistSans = Geist({
+const geistSans = localFont({
+  src: './fonts/geistMono-regular.woff',
   variable: "--font-geist-sans",
-  subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
+const geistMono = localFont({
+  src: './fonts/geistMonoVF.woff',
   variable: "--font-geist-mono",
-  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
