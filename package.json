@@ -3,10 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "npm run typescript:build && npm run next:build",
+    "clean": "rm -rf tsconfig.tsbuildinfo",
+    "dev": "next dev --turbopack",
+    "next:dev": "next dev --turbopack",
+    "next:build": "next build",
+    "typescript:build": "tsc --build",
     "start": "next start",
-    "lint": "next lint",
-    "dev": "next dev --turbopack"
+    "lint": "next lint"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.5.1",
