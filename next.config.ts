@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // output: "export",
+  reactStrictMode: true,
+  experimental: {
+    appDir: true, // Ensure it's using the app directory
+  }
 };
 
 export default nextConfig;
