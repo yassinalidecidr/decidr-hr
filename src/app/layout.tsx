@@ -8,12 +8,12 @@ import { Chat } from '@/components/Chat/Chat';
 import NavbarWrapper from '@/components/NavbarWrapper';
 
 const geistSans = localFont({
-  src: './fonts/geistMono-regular.woff',
+  src: '../fonts/geistMono-regular.otf',
   variable: "--font-geist-sans",
 });
 
 const geistMono = localFont({
-  src: './fonts/geistMonoVF.woff',
+  src: '../fonts/geistMonoVF.ttf',
   variable: "--font-geist-mono",
 });
 
