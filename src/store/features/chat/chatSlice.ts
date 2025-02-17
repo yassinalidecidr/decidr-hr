@@ -69,7 +69,7 @@ export const sendMessage = createAsyncThunk(
   }
 );
 
-const chatSlice = createSlice({
+export const chatSlice = createSlice({
   name: 'chat',
   initialState,
   reducers: {
@@ -104,6 +104,7 @@ const chatSlice = createSlice({
     toggleChat: (state) => {
       state.isOpen = !state.isOpen;
     },
+    clearChat: () => initialState,
   },
   extraReducers: (builder) => {
     builder
@@ -155,5 +156,5 @@ const chatSlice = createSlice({
   },
 });
 
-export const { setCurrentSession, clearError, addMessage, createNewSession, markMessageAsCompleted, toggleChat } = chatSlice.actions;
+export const { setCurrentSession, clearError, addMessage, createNewSession, markMessageAsCompleted, toggleChat, clearChat } = chatSlice.actions;
 export default chatSlice.reducer; 

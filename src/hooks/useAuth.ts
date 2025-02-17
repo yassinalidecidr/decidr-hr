@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { login, register, logout, clearError } from '@/store/features/auth/authSlice';
+import { clearChat } from '@/store/features/chat/chatSlice';
 import type { LoginCredentials, RegisterCredentials } from '@/types/user';
 
 export function useAuth() {
@@ -27,6 +28,7 @@ export function useAuth() {
   }, [dispatch]);
 
   const handleLogout = useCallback(() => {
+    dispatch(clearChat());
     dispatch(logout());
   }, [dispatch]);
 
