@@ -3,8 +3,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ToastProvider } from "@/components/ToastProvider";
 import "./globals.css";
 import { Providers } from '@/store/provider';
-import { Chat } from '@/components/Chat/Chat';
-import NavbarWrapper from '@/components/NavbarWrapper';
+import { LayoutWrapper } from '@/components/LayoutWrapper';
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -22,10 +21,7 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <Providers>
           <AuthProvider>
-            <NavbarWrapper />
-            {children}
-            <ToastProvider />
-            <Chat />
+            <LayoutWrapper>{children}</LayoutWrapper>
           </AuthProvider>
         </Providers>
       </body>

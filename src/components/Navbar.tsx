@@ -5,10 +5,12 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Menu, X } from '@/components/Icons';
+import { useAppSelector } from '@/store/hooks';
 
 export function Navbar() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
+  const { isOpen } = useAppSelector(state => state.chat);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -43,7 +45,9 @@ export function Navbar() {
     <>
       <header className="w-full bg-[#0a0b1a] text-white">
         <nav className={`
-          px-6 md:px-20 py-4 flex justify-between items-center fixed top-0 w-full z-20 transition-colors duration-300
+          px-6 md:px-20 py-4 flex justify-between items-center fixed top-0 z-20 
+          transition-all duration-300
+          ${isOpen ? 'w-[70%]' : 'w-full'}
           ${scrolled ? 'bg-black bg-opacity-90' : ''}
         `}>
           <div className="container mx-auto flex justify-between items-center">
@@ -100,7 +104,7 @@ export function Navbar() {
               <X className="w-6 h-6" />
             </button>
           </div>
-          <div className="space-y-4 mt-8">
+          <div className="space-y-4 mt-8 text-white">
             {navItems.map((item) => (
               <Link
                 key={item.name}

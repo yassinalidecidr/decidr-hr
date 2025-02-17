@@ -10,7 +10,8 @@
     "next:build": "next build",
     "typescript:build": "tsc --build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "cache:clean": "yarn cache clean --force"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.5.1",

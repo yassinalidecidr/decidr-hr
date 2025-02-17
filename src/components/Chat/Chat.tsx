@@ -3,24 +3,16 @@
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { useAuth } from '@/hooks/useAuth';
-import { sendMessage } from '@/store/features/chat/chatSlice';
+import { sendMessage, toggleChat } from '@/store/features/chat/chatSlice';
 import { ChatWindow } from './ChatWindow';
 import { ChatButton } from './ChatButton';
 import toast from 'react-hot-toast';
-import { usePathname } from 'next/navigation';
 
 export function Chat() {
-  const [isOpen, setIsOpen] = useState(false);
   const dispatch = useAppDispatch();
-  const { loading, error } = useAppSelector(state => state.chat);
+  const { loading, error, isOpen } = useAppSelector(state => state.chat);
   const { user } = useAuth();
   const [input, setInput] = useState('');
-  const pathname = usePathname();
-
-  // Only show chat on dashboard
-  if (pathname !== '/dashboard' && pathname !== '/login') {
-    return null;
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,22 +28,27 @@ export function Chat() {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
-      {isOpen ? (
-        <ChatWindow
-          input={input}
-          setInput={setInput}
-          onSubmit={handleSubmit}
-          onClose={() => setIsOpen(false)}
-          loading={loading}
-          error={error}
-          placeholder={user ? "Ask me anything..." : "Ask about login, registration, or password recovery..."}
-          title={user ? "HR Assistant" : "Auth Assistant"}
-
-        />
-      ) : (
-        <ChatButton onClick={() => setIsOpen(true)} />
+    <>
+      {!isOpen && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <ChatButton onClick={() => dispatch(toggleChat())} />
+        </div>
       )}
-    </div>
+      <div className={`fixed right-0 top-0 h-screen bg-white z-50 transition-all duration-300 transform
+        ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        {isOpen && (
+          <ChatWindow
+            input={input}
+            setInput={setInput}
+            onSubmit={handleSubmit}
+            onClose={() => dispatch(toggleChat())}
+            loading={loading}
+            error={error}
+            placeholder={user ? "Ask me anything..." : "Ask about login, registration, or password recovery..."}
+            title={user ? "HR Assistant" : "Auth Assistant"}
+          />
+        )}
+      </div>
+    </>
   );
 } 

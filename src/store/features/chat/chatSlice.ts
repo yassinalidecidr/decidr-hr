@@ -8,6 +8,7 @@ interface ChatState {
   loading: boolean;
   error: string | null;
   completedMessages: string[];
+  isOpen: boolean;
 }
 
 const initialState: ChatState = {
@@ -16,6 +17,7 @@ const initialState: ChatState = {
   loading: false,
   error: null,
   completedMessages: [],
+  isOpen: false,
 };
 
 export const sendMessage = createAsyncThunk(
@@ -99,6 +101,9 @@ const chatSlice = createSlice({
         state.completedMessages.push(action.payload);
       }
     },
+    toggleChat: (state) => {
+      state.isOpen = !state.isOpen;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -150,5 +155,5 @@ const chatSlice = createSlice({
   },
 });
 
-export const { setCurrentSession, clearError, addMessage, createNewSession, markMessageAsCompleted } = chatSlice.actions;
+export const { setCurrentSession, clearError, addMessage, createNewSession, markMessageAsCompleted, toggleChat } = chatSlice.actions;
 export default chatSlice.reducer; 
