@@ -28,12 +28,12 @@ export function Navbar() {
     { name: 'Services', href: '/services' },
     { name: 'Locations', href: '/locations' },
     { name: 'Contact', href: '/contact' },
+    { name: 'Chat', href: '/chat' },
   ];
   
   // Auth-required nav items
   const authNavItems = [
     { name: 'Dashboard', href: '/dashboard' },
-    { name: 'Chat', href: '/chat' },
   ];
   
   // Combine nav items based on auth status

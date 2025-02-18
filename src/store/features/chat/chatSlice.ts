@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { Message, ChatSession } from '@/types/message';
 import { RootState } from '@/store/store';
+import { storeAuthData } from '@/lib/api';
+// import { login } from '../auth/authSlice';
 
 interface ChatState {
   sessions: ChatSession[];
@@ -9,6 +11,10 @@ interface ChatState {
   error: string | null;
   completedMessages: string[];
   isOpen: boolean;
+  authState: {
+    email?: string;
+    requiresOTP: boolean;
+  };
 }
 
 const initialState: ChatState = {
@@ -18,23 +24,32 @@ const initialState: ChatState = {
   error: null,
   completedMessages: [],
   isOpen: false,
+  authState: {
+    email: undefined,
+    requiresOTP: false,
+  },
 };
 
 export const sendMessage = createAsyncThunk(
   'chat/sendMessage',
-  async ({ content, department }: { content: string; department?: string }, { getState }) => {
+  async ({ content, department }: { content: string; department?: string }, { getState, dispatch }) => {
     const state = getState() as RootState;
     const token = state.auth.token;
     const accessKey = process.env.NEXT_PUBLIC_ACCESS_KEY;
+    const { authState } = state.chat;
 
     if (!accessKey) {
       throw new Error('No access key found');
     }
 
-    // Choose endpoint based on authentication status
-    const endpoint = token ? '/api/ai/query' : '/api/ai/auth-query';
-    
-    // Ensure token is properly formatted
+    // Extract email from message if it looks like an email
+    const emailMatch = content.match(/[\w.-]+@[\w.-]+\.\w+/);
+    const email = emailMatch ? emailMatch[0] : authState.email;
+
+    // Extract OTP if message contains only numbers
+    const otpMatch = content.match(/^\d+$/);
+    const otp = otpMatch ? content : undefined;
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'X-API-Key': accessKey,
@@ -42,30 +57,80 @@ export const sendMessage = createAsyncThunk(
 
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
-      console.log('Adding auth header:', headers['Authorization']); // Debug log
     }
+
+    // **Dynamically choose API endpoint based on authentication status**
+    const endpoint = token ? '/api/ai/query' : '/api/ai/auth-query';
 
     const response = await fetch(endpoint, {
       method: 'POST',
       headers,
       body: JSON.stringify({
         query: content,
-        ...(token && { department }), // Only include department for authenticated requests
+        ...(email && { email }),
+        ...(otp && { otp }),
+        ...(token && { department }),
       }),
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('API Error:', {
-        status: response.status,
-        headers: headers,
-        error: errorData
-      });
       throw new Error(errorData.error || 'Failed to send message');
     }
-    
+    console.log('Response:', response);
     const data = await response.json();
+    console.log('data:', data);
+    // Handle authentication response
+    if (data.requiresOTP) {
+      console.log('data.requiresOTP:', data.requiresOTP);
+      dispatch(chatSlice.actions.updateAuthState({ email, requiresOTP: true }));
+    } else if (data.token && data.user) {
+      console.log('data.token:', data.token);
+      console.log('data.user:', data.user);
+      // Store auth data and dispatch login action
+      storeAuthData(data);
+      dispatch({ 
+        type: 'auth/login/fulfilled',
+        payload: {
+          token: data.token,
+          user: data.user
+        }
+      });
+      // dispatch(login({ token: data.token, user: data.user }));
+      dispatch(chatSlice.actions.updateAuthState({})); // Reset auth state
+    }
+
     return { userMessage: content, ...data };
+  }
+);
+
+// New thunk for welcome message
+export const getWelcomeMessage = createAsyncThunk(
+  'chat/getWelcomeMessage',
+  async () => {
+    const accessKey = process.env.NEXT_PUBLIC_ACCESS_KEY;
+
+    if (!accessKey) {
+      throw new Error('No access key found');
+    }
+
+    const response = await fetch('/api/ai/auth-query', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': accessKey,
+      },
+      body: JSON.stringify({
+        query: "Hello, I need help logging in"
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to get welcome message');
+    }
+
+    const data = await response.json();
+    return data;
   }
 );
 
@@ -75,6 +140,12 @@ export const chatSlice = createSlice({
   reducers: {
     setCurrentSession: (state, action) => {
       state.currentSession = action.payload;
+    },
+    updateAuthState: (state, action: { payload: { email?: string; requiresOTP?: boolean } }) => {
+      state.authState = {
+        email: action.payload.email || state.authState.email,
+        requiresOTP: action.payload.requiresOTP ?? false,
+      };
     },
     clearError: (state) => {
       state.error = null;
@@ -103,6 +174,10 @@ export const chatSlice = createSlice({
     },
     toggleChat: (state) => {
       state.isOpen = !state.isOpen;
+      // If chat is being opened and there are no messages, get welcome message
+      if (state.isOpen && (!state.currentSession || state.sessions.length === 0)) {
+        state.loading = true; // Set loading state
+      }
     },
     clearChat: () => initialState,
   },
@@ -152,9 +227,34 @@ export const chatSlice = createSlice({
       .addCase(sendMessage.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message ?? 'Failed to send message';
+      })
+      .addCase(getWelcomeMessage.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getWelcomeMessage.fulfilled, (state, action) => {
+        state.loading = false;
+        if (!state.currentSession) {
+          const newSession: ChatSession = {
+            id: Date.now().toString(),
+            messages: [{
+              id: Date.now().toString(),
+              content: action.payload.response,
+              role: 'assistant',
+              createdAt: new Date().toISOString(),
+            }],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+          state.sessions.push(newSession);
+          state.currentSession = newSession.id;
+        }
+      })
+      .addCase(getWelcomeMessage.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message ?? 'Failed to get welcome message';
       });
   },
 });
 
-export const { setCurrentSession, clearError, addMessage, createNewSession, markMessageAsCompleted, toggleChat, clearChat } = chatSlice.actions;
+export const { setCurrentSession, updateAuthState, clearError, addMessage, createNewSession, markMessageAsCompleted, toggleChat, clearChat } = chatSlice.actions;
 export default chatSlice.reducer; 

@@ -7,7 +7,7 @@ const ACCESS_KEY = process.env.NEXT_PUBLIC_ACCESS_KEY;
 export async function POST(request: Request) {
   try {
     validateEnv();
-    const { query } = await request.json();
+    const { query, email, otp } = await request.json();
 
     if (!ACCESS_KEY) {
       return NextResponse.json(
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
 
     console.log('Making auth query request to:', `${API_BASE_URL}/ai/auth-query`);
     console.log('Headers:', { 'X-API-Key': ACCESS_KEY });
-    console.log('Body:', { query });
+    console.log('Body:', { query, email, otp });
 
     const response = await fetch(`${API_BASE_URL}/ai/auth-query`, {
       method: 'POST',
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json',
         'X-API-Key': ACCESS_KEY,
       },
-      body: JSON.stringify({ query }),
+      body: JSON.stringify({ query, email, otp }),
     });
 
     if (!response.ok) {

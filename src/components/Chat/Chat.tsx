@@ -1,18 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { useAuth } from '@/hooks/useAuth';
-import { sendMessage, toggleChat } from '@/store/features/chat/chatSlice';
+import { sendMessage, toggleChat, getWelcomeMessage } from '@/store/features/chat/chatSlice';
 import { ChatWindow } from './ChatWindow';
 import { ChatButton } from './ChatButton';
 import toast from 'react-hot-toast';
+import { usePathname } from 'next/navigation';
 
 export function Chat() {
   const dispatch = useAppDispatch();
-  const { loading, error, isOpen } = useAppSelector(state => state.chat);
+  const { loading, error, isOpen, currentSession, sessions } = useAppSelector(state => state.chat);
   const { user } = useAuth();
   const [input, setInput] = useState('');
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (isOpen && (!currentSession || sessions.length === 0)) {
+      dispatch(getWelcomeMessage());
+    }
+  }, [isOpen, currentSession, sessions.length, dispatch]);
+
+  // Only show chat on dashboard
+  if (pathname !== '/dashboard' && pathname !== '/login') {
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -8,7 +8,7 @@ import remarkGfm from 'remark-gfm';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { markMessageAsCompleted } from '@/store/features/chat/chatSlice';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
+import { logout } from '@/store/features/auth/authSlice';
 
 interface ChatWindowProps {
   input: string;
@@ -63,7 +63,7 @@ export function ChatWindow({
   placeholder = "Ask me anything...",
 }: ChatWindowProps) {
   const { currentSession, sessions, completedMessages } = useAppSelector(state => state.chat);
-  const { user } = useAuth();
+  const { user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const pathname = usePathname();
   const isFullWidth = pathname === '/chat';
@@ -91,12 +91,27 @@ export function ChatWindow({
             )}
             <h3 className="font-semibold">AI Consultant</h3>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-full"
-          >
-            <XIcon className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {user && (
+              <>
+                <span className="text-sm text-gray-600">
+                  {user.email}
+                </span>
+                <button
+                  onClick={() => dispatch(logout())}
+                  className="text-xs px-2 py-1 text-red-600 hover:bg-red-50 rounded"
+                >
+                  Sign out
+                </button>
+              </>
+            )}
+            <button
+              onClick={onClose}
+              className="p-1 hover:bg-gray-100 rounded-full"
+            >
+              <XIcon className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Messages */}
