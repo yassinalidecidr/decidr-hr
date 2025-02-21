@@ -126,11 +126,14 @@ export const getWelcomeMessage = createAsyncThunk(
 
     const endpoint = token ? '/api/ai/query' : '/api/ai/auth-query';
     const query = token 
-      ? 'Send a welcome message to the user, mentioning their organization name and offering assistanc only' 
+      ? 'Send a brief welcome back message mentioning their organization name and offering assistance. Keep it to one sentence only.' 
       : 'Hello, I need help logging in';
 
     while (retries >= 0) {
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
@@ -141,7 +144,10 @@ export const getWelcomeMessage = createAsyncThunk(
           body: JSON.stringify({
             query
           }),
+          signal: controller.signal,
         });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
           throw new Error('Failed to get welcome message');
