@@ -37,7 +37,7 @@ export const sendMessage = createAsyncThunk(
     const token = state.auth.token;
     const accessKey = process.env.NEXT_PUBLIC_ACCESS_KEY;
     const { authState } = state.chat;
-    let retries = 2; // Number of retries
+    let retries = 3; // Number of retries
 
     if (!accessKey) {
       throw new Error('No access key found');
@@ -116,7 +116,7 @@ export const getWelcomeMessage = createAsyncThunk(
   'chat/getWelcomeMessage',
   async () => {
     const accessKey = process.env.NEXT_PUBLIC_ACCESS_KEY;
-    let retries = 2; // Number of retries
+    let retries = 3; // Number of retries
 
     if (!accessKey) {
       throw new Error('No access key found');

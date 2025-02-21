@@ -30,7 +30,7 @@ const initialState: AuthState = getInitialState();
 export const login = createAsyncThunk(
   'auth/login',
   async (credentials: { email: string; password: string }) => {
-    let retries = 2; // Number of retries
+    let retries = 3; // Number of retries
 
     while (retries >= 0) {
       try {
