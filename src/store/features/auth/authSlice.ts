@@ -30,31 +30,45 @@ const initialState: AuthState = getInitialState();
 export const login = createAsyncThunk(
   'auth/login',
   async (credentials: { email: string; password: string }) => {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(credentials),
-    });
-    
-    const data = await response.json();
+    let retries = 2; // Number of retries
 
-    if (!response.ok) {
-      throw new Error(data.error || 'Login failed');
+    while (retries >= 0) {
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(credentials),
+        });
+        
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Login failed');
+        }
+        
+        if (!data.token || !data.user) {
+          throw new Error('Invalid response format');
+        }
+
+        // Store both token and user data
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        document.cookie = `token=${data.token}; path=/; max-age=86400`;
+
+        return {
+          token: data.token,
+          user: data.user
+        };
+      } catch (error) {
+        if (retries === 0) {
+          throw error;
+        }
+        retries--;
+        // Wait for 1.5 seconds before retrying
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        console.log(`Retrying login... ${retries} attempts remaining`);
+      }
     }
-    
-    if (!data.token || !data.user) {
-      throw new Error('Invalid response format');
-    }
-
-    // Store both token and user data
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    document.cookie = `token=${data.token}; path=/; max-age=86400`;
-
-    return {
-      token: data.token,
-      user: data.user
-    };
   }
 );
 

@@ -6,21 +6,39 @@ export function middleware(request: NextRequest) {
   const { pathname, origin } = request.nextUrl;
 
   // Paths that don't require authentication
-  const publicPaths = ['/login', '/register', '/forgot-password'];
-  const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
+  // const publicPaths = [
+  //   '/login',
+  //   '/register',
+  //   '/forgot-password',
+  //   '/',
+  //   '/about',
+  //   '/services',
+  //   '/locations',
+  //   '/contact',
+  //   '/chat'  // Make chat publicly accessible
+  // ];
+  
+  // Check if the current path starts with any of the public paths
+  // const isPublicPath = publicPaths.some(path => 
+  //   pathname === path || pathname.startsWith(`${path}/`)
+  // );
+
+  // Protected paths that require authentication
+  const protectedPaths = ['/dashboard'];
+  const isProtectedPath = protectedPaths.some(path => 
+    pathname.startsWith(path)
+  );
 
   // Only redirect to login if:
   // 1. User is not authenticated
   // 2. Trying to access a protected route
-  // 3. Not already on the login page
-  if (!token && !isPublicPath) {
+  if (!token && isProtectedPath) {
     return NextResponse.redirect(
       `${origin}/login?from=${encodeURIComponent(pathname)}`
     );
   }
 
-  // Remove the automatic redirect to dashboard
-  // Let the login page handle its own redirects
+  // Let all other requests pass through
   return NextResponse.next();
 }
 

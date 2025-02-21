@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { Message, ChatSession } from '@/types/message';
 import { RootState } from '@/store/store';
 import { storeAuthData } from '@/lib/api';
-// import { login } from '../auth/authSlice';
+import { login } from '../auth/authSlice';
 
 interface ChatState {
   sessions: ChatSession[];
@@ -37,6 +37,7 @@ export const sendMessage = createAsyncThunk(
     const token = state.auth.token;
     const accessKey = process.env.NEXT_PUBLIC_ACCESS_KEY;
     const { authState } = state.chat;
+    let retries = 2; // Number of retries
 
     if (!accessKey) {
       throw new Error('No access key found');
@@ -62,75 +63,94 @@ export const sendMessage = createAsyncThunk(
     // **Dynamically choose API endpoint based on authentication status**
     const endpoint = token ? '/api/ai/query' : '/api/ai/auth-query';
 
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        query: content,
-        ...(email && { email }),
-        ...(otp && { otp }),
-        ...(token && { department }),
-      }),
-    });
+    while (retries >= 0) {
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            query: content,
+            ...(email && { email }),
+            ...(otp && { otp }),
+            ...(token && { department }),
+          }),
+        });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to send message');
-    }
-    console.log('Response:', response);
-    const data = await response.json();
-    console.log('data:', data);
-    // Handle authentication response
-    if (data.requiresOTP) {
-      console.log('data.requiresOTP:', data.requiresOTP);
-      dispatch(chatSlice.actions.updateAuthState({ email, requiresOTP: true }));
-    } else if (data.token && data.user) {
-      console.log('data.token:', data.token);
-      console.log('data.user:', data.user);
-      // Store auth data and dispatch login action
-      storeAuthData(data);
-      dispatch({ 
-        type: 'auth/login/fulfilled',
-        payload: {
-          token: data.token,
-          user: data.user
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to send message');
         }
-      });
-      // dispatch(login({ token: data.token, user: data.user }));
-      dispatch(chatSlice.actions.updateAuthState({})); // Reset auth state
-    }
+        console.log('Response:', response);
+        const data = await response.json();
+        console.log('data:', data);
 
-    return { userMessage: content, ...data };
+        // Handle authentication response
+        if (data.requiresOTP) {
+          console.log('data.requiresOTP:', data.requiresOTP);
+          dispatch(chatSlice.actions.updateAuthState({ email, requiresOTP: true }));
+        } else if (data.token && data.user) {
+          console.log('data.token:', data.token);
+          console.log('data.user:', data.user);
+          // Store auth data and dispatch login action
+          storeAuthData(data);
+          dispatch(login.fulfilled({ token: data.token, user: data.user }, '', { email: '', password: '' }));
+          dispatch(chatSlice.actions.updateAuthState({})); // Reset auth state
+        }
+
+        return { userMessage: content, ...data };
+      } catch (error) {
+        if (retries === 0) {
+          throw error;
+        }
+        retries--;
+        // Wait for 1.5 seconds before retrying
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        console.log(`Retrying request... ${retries} attempts remaining`);
+      }
+    }
   }
 );
 
-// New thunk for welcome message
+// New thunk for welcome message with retries
 export const getWelcomeMessage = createAsyncThunk(
   'chat/getWelcomeMessage',
   async () => {
     const accessKey = process.env.NEXT_PUBLIC_ACCESS_KEY;
+    let retries = 2; // Number of retries
 
     if (!accessKey) {
       throw new Error('No access key found');
     }
 
-    const response = await fetch('/api/ai/auth-query', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': accessKey,
-      },
-      body: JSON.stringify({
-        query: "Hello, I need help logging in"
-      }),
-    });
+    while (retries >= 0) {
+      try {
+        const response = await fetch('/api/ai/auth-query', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': accessKey,
+          },
+          body: JSON.stringify({
+            query: "Hello, I need help logging in"
+          }),
+        });
 
-    if (!response.ok) {
-      throw new Error('Failed to get welcome message');
+        if (!response.ok) {
+          throw new Error('Failed to get welcome message');
+        }
+
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        if (retries === 0) {
+          throw error;
+        }
+        retries--;
+        // Wait for 1.5 seconds before retrying
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        console.log(`Retrying welcome message... ${retries} attempts remaining`);
+      }
     }
-
-    const data = await response.json();
-    return data;
   }
 );
 

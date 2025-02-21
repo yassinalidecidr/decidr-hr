@@ -35,7 +35,7 @@ function Typewriter({ content, onComplete }: TypewriterProps) {
       const timer = setTimeout(() => {
         setDisplayedContent(prev => prev + content[currentIndex]);
         setCurrentIndex(prev => prev + 1);
-      }, 20); // Adjust speed here
+      }, 10); // Adjust speed here
       
       return () => clearTimeout(timer);
     } else if (onComplete) {
