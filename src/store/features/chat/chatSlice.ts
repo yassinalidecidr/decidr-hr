@@ -114,7 +114,9 @@ export const sendMessage = createAsyncThunk(
 // New thunk for welcome message with retries
 export const getWelcomeMessage = createAsyncThunk(
   'chat/getWelcomeMessage',
-  async () => {
+  async (_, { getState }) => {
+    const state = getState() as RootState;
+    const token = state.auth.token;
     const accessKey = process.env.NEXT_PUBLIC_ACCESS_KEY;
     let retries = 3; // Number of retries
 
@@ -122,16 +124,20 @@ export const getWelcomeMessage = createAsyncThunk(
       throw new Error('No access key found');
     }
 
+    const endpoint = token ? '/api/ai/query' : '/api/ai/auth-query';
+    const query = token ? 'Welcome me' : 'Hello, I need help logging in';
+
     while (retries >= 0) {
       try {
-        const response = await fetch('/api/ai/auth-query', {
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'X-API-Key': accessKey,
+            ...(token && { 'Authorization': `Bearer ${token}` }),
           },
           body: JSON.stringify({
-            query: "Hello, I need help logging in"
+            query
           }),
         });
 
