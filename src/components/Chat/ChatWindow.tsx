@@ -9,6 +9,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { markMessageAsCompleted } from '@/store/features/chat/chatSlice';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/store/features/auth/authSlice';
+import { useTheme } from 'next-themes';
 
 interface ChatWindowProps {
   input: string;
@@ -71,6 +72,8 @@ export function ChatWindow({
     ? sessions.find(s => s.id === currentSession)?.messages ?? []
     : [], [currentSession, sessions]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { theme } = useTheme();
+  const isDarkMode = theme === 'dark';
 
   const handleMessageComplete = (messageId: string) => {
     dispatch(markMessageAsCompleted(messageId));
@@ -82,24 +85,33 @@ export function ChatWindow({
 
   return (
     <div className={`fixed right-0 top-0 h-screen animate-slide-in ${isFullWidth ? 'w-full' : ''}`}>
-      <div className={`${isFullWidth ? 'w-full' : 'w-96'} h-full bg-white shadow-xl flex flex-col`}>
+      <div className={`${isFullWidth ? 'w-full' : 'w-96'} h-full flex flex-col
+        ${isDarkMode 
+          ? 'bg-gray-900 text-white' 
+          : 'bg-white text-gray-900'}`}
+      >
         {/* Header */}
-        <div className="p-4 border-b flex justify-between items-center">
+        <div className={`p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} flex justify-between items-center`}>
           <div>
             {user?.organisation && (
-              <div className="text-sm text-gray-500">{user.organisation.name}</div>
+              <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                {user.organisation.name}
+              </div>
             )}
             <h3 className="font-semibold">AI Consultant</h3>
           </div>
           <div className="flex items-center gap-2">
             {user && (
               <>
-                <span className="text-sm text-gray-600">
+                <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   {user.email}
                 </span>
                 <button
                   onClick={() => dispatch(logout())}
-                  className="text-xs px-2 py-1 text-red-600 hover:bg-red-50 rounded"
+                  className={`text-xs px-2 py-1 rounded
+                    ${isDarkMode 
+                      ? 'text-red-400 hover:bg-red-900/50' 
+                      : 'text-red-600 hover:bg-red-50'}`}
                 >
                   Sign out
                 </button>
@@ -107,7 +119,10 @@ export function ChatWindow({
             )}
             <button
               onClick={onClose}
-              className="p-1 hover:bg-gray-100 rounded-full"
+              className={`p-1 rounded-full
+                ${isDarkMode 
+                  ? 'hover:bg-gray-800' 
+                  : 'hover:bg-gray-100'}`}
             >
               <XIcon className="w-5 h-5" />
             </button>
@@ -115,7 +130,7 @@ export function ChatWindow({
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className={`flex-1 overflow-y-auto p-4 space-y-4`}>
           <div className={`${isFullWidth ? 'max-w-xl mx-auto w-full' : ''}`}>
             {currentMessages.map((message) => (
               <div
@@ -127,8 +142,12 @@ export function ChatWindow({
                 <div
                   className={`max-w-[80%] p-3 rounded-lg ${
                     message.role === 'user'
-                      ? 'bg-gray-100'
-                      : ''
+                      ? isDarkMode 
+                        ? 'bg-gray-800' 
+                        : 'bg-gray-100'
+                      : isDarkMode 
+                        ? 'bg-gray-900' 
+                        : ''
                   }`}
                 >
                   {message.role === 'assistant' && !completedMessages.includes(message.id) ? (
@@ -139,11 +158,11 @@ export function ChatWindow({
                   ) : (
                     <ReactMarkdown 
                       remarkPlugins={[remarkGfm]}
-                      className={`prose prose-sm max-w-none ${
-                        message.role === 'user' 
-                          ? '' 
-                          : 'prose-pre:bg-gray-100 prose-pre:p-2'
-                      } text-base`}
+                      className={`prose prose-sm max-w-none
+                        ${isDarkMode 
+                          ? 'prose-invert prose-pre:bg-gray-800' 
+                          : 'prose-pre:bg-gray-100'} 
+                        prose-pre:p-2 text-base`}
                     >
                       {message.content}
                     </ReactMarkdown>
@@ -157,14 +176,16 @@ export function ChatWindow({
               </div>
             )}
             {error && (
-              <div className="text-red-500 text-center text-sm">{error}</div>
+              <div className={`text-center text-sm ${isDarkMode ? 'text-red-400' : 'text-red-500'}`}>
+                {error}
+              </div>
             )}
             <div ref={messagesEndRef} />
           </div>
         </div>
 
         {/* Input and Footer */}
-        <div className="border-t">
+        <div className={`border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
           <form onSubmit={onSubmit} className="p-4">
             <div className={`${isFullWidth ? 'max-w-xl mx-auto' : ''}`}>
               <div className="flex space-x-2">
@@ -173,7 +194,10 @@ export function ChatWindow({
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   placeholder={placeholder}
-                  className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`flex-1 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500
+                    ${isDarkMode 
+                      ? 'bg-gray-800 border border-gray-700 text-white placeholder-gray-400' 
+                      : 'bg-white border border-gray-200 text-gray-900 placeholder-gray-500'}`}
                 />
                 <button
                   type="submit"
@@ -185,7 +209,7 @@ export function ChatWindow({
               </div>
             </div>
           </form>
-          <div className={`pb-4 text-center text-sm text-gray-500 ${isFullWidth ? 'max-w-xl mx-auto' : ''}`}>
+          <div className={`pb-4 text-center text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
             Powered by Decidr
           </div>
         </div>
