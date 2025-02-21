@@ -1,5 +1,7 @@
 'use client';
 
+import { useTheme } from 'next-themes';
+
 interface LoginFormProps {
   onSubmit: (credentials: { email: string; password: string }) => void;
   loading: boolean;
@@ -7,6 +9,9 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onSubmit, loading, error }: LoginFormProps) {
+  const { theme } = useTheme();
+  const isDarkMode = theme === 'dark';
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -27,7 +32,11 @@ export function LoginForm({ onSubmit, loading, error }: LoginFormProps) {
           name="email"
           type="email"
           required
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+          className={`mt-1 block w-full rounded-md px-3 py-2 ${
+            isDarkMode 
+              ? 'bg-gray-800 border-gray-700 text-white' 
+              : 'bg-white border-gray-300 text-gray-900'
+          }`}
         />
       </div>
       <div>
@@ -39,7 +48,11 @@ export function LoginForm({ onSubmit, loading, error }: LoginFormProps) {
           name="password"
           type="password"
           required
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+          className={`mt-1 block w-full rounded-md px-3 py-2 ${
+            isDarkMode 
+              ? 'bg-gray-800 border-gray-700 text-white' 
+              : 'bg-white border-gray-300 text-gray-900'
+          }`}
         />
       </div>
       {error && <div className="text-red-500 text-sm">{error}</div>}
