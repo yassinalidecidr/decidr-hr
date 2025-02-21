@@ -125,7 +125,9 @@ export const getWelcomeMessage = createAsyncThunk(
     }
 
     const endpoint = token ? '/api/ai/query' : '/api/ai/auth-query';
-    const query = token ? 'Welcome me' : 'Hello, I need help logging in';
+    const query = token 
+      ? 'Send a welcome message to the user, mentioning their organization name and offering assistanc only' 
+      : 'Hello, I need help logging in';
 
     while (retries >= 0) {
       try {
